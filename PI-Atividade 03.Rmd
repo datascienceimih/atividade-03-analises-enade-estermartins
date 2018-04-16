@@ -1,0 +1,114 @@
+---
+title: "Atividade 03"
+author: "Ester Martins"
+date: "16 de abril de 2018"
+output: html_document
+---
+
+```{r}
+install.packages("readr")
+install.packages("descr")
+installed.packages("dplyr")
+
+library(readr)
+library(descr)
+library(dplyr)
+
+enade14 <- read_csv2("http://raw.githubusercontent.com/neylsoncrepalde/introducao_ao_r/master/dados/enade_2014_amostra.csv")
+
+3.1
+# Mostre com um comando e usando um gráfico a distribuição das idades dessa amostra de alunos que fizeram ENADE em 2014. Comente o resultado.
+hist(enade14$nu_idade, col = blues9, main = "DistribuiÃ§Ã£o de idade-Enade2014", xlab = "Idades", ylab = "FrequÃªncia")
+# A maior parte dos alunos possuem entre 20 e 30 anos de idade. E apresenta poucos alunos entre 50 e 70 anos.
+
+3.2
+# Monte uma tabela exibindo as porcentagens e os valores absolutos das proporções de alunos por COR/RAÇA. O descobrimos sobre isso?
+cor_raca <- enade14$qe_i2
+cor_raca[cor_raca == "a"] <- "Branco"
+cor_raca[cor_raca == "b"] <- "Negro"
+cor_raca[cor_raca == "c"] <- "Pardo"
+cor_raca[cor_raca == "d"] <- "Amarelo"
+cor_raca[cor_raca == "e"] <- "IndÃ­gena"
+
+freq(cor_raca, col = blues9, main = "DIstribuiÃ§Ã£o de raÃ§as-Enade2014", xlab = "Cor/RaÃ§a", ylab = "frequÃªncia")
+#A porcetagem de pessoas brancas se sobressai, pessoas declaradas indÃ­genas e de cor amarela sÃ£o visivelmentes menores.
+
+3.3
+# Apresente a proporção de alunos casados e solteiros. Atenção, queremos apenas CASADOS e SOLTEIROS. Exclua de sua análise os alunos que tiverem outro tipo de estado civil.
+enade14$est_civil1 = enade14$qe_i1
+dim(enade14)  #teste
+enade14$est_civil1[enade14$est_civil1 == "c"] <- NA
+enade14$est_civil1[enade14$est_civil1 == "d"] <- NA
+enade14$est_civil1[enade14$est_civil1 == "e"] <- NA
+freq(enade14$est_civil1)
+enade14.2 = enade14 %>% mutate(est_civil1 = qe_i1) %>% filter(est_civil1 == 'a' | est_civil1 == 'b')
+freq(enade14.2$est_civil1, plot = F)
+#erro, nao foi encontrado %>% (parece estar associado ao pacote dplyr, que nao foi encontrado apesar de ser pedido o comando install.packages("dplyr"))
+solteiros = enade14$qe_i1[enade14$qe_i1 == "a" | enade14$qe_i1 == "b"]
+
+freq(solteiros, plot = F, col = blues9)
+# A quantidade de pessoas solteiras Ã© maior que casadas.
+
+3.4
+# Apresente estatísticas descritivas sobre a nota geral dos alunos no Enade. Apresente também a informação em um gráfico. Qual é o gráfico mais adequado para a visualização desta variável? Por quê? Comente sobre a nota geral. Os alunos parecem ter, no geral, um bom desempenho ou um mal desempenho?
+summary(enade14$nt_ger)
+boxplot(enade14$nt_ger, col = blues9, main = "Nota geral-Enade2014", ylab = "notas")
+# O melhor grÃ¡fico Ã© em forma de boxplot, pois permite uma melhor visualizaÃ§Ã£o das notas. A nota geral dos alunos foi baixa.
+
+3.5
+# Crie uma variável binária chamada PUBLICA. Nessa variável, você deve marcar 1 se a universidade em que o aluno estudou foi pública e 0 se foi privada.
+enade14$PUBLICA =enade14$co_catad
+enade14$PUBLICA[enade14$PUBLICA == 93]    = 1
+enade14$PUBLICA[enade14$PUBLICA == 116]   = 1
+enade14$PUBLICA[enade14$PUBLICA == 118]   = 0
+enade14$PUBLICA[enade14$PUBLICA == 121]   = 0
+enade14$PUBLICA[enade14$PUBLICA == 10001] = 1
+enade14$PUBLICA[enade14$PUBLICA == 10002] = 1
+enade14$PUBLICA[enade14$PUBLICA == 10003] = 1
+enade14$PUBLICA[enade14$PUBLICA == 10004] = 0
+enade14$PUBLICA[enade14$PUBLICA == 10005] = 0
+enade14$PUBLICA[enade14$PUBLICA == 10006] = 0
+enade14$PUBLICA[enade14$PUBLICA == 10007] = 0
+enade14$PUBLICA[enade14$PUBLICA == 10008] = 0
+enade14$PUBLICA[enade14$PUBLICA == 10009] = 0
+
+enade14$co_catad[enade14$co_catad == "0"] <- "Privada"
+enade14$co_catad[enade14$co_catad == "1"] <- "PÃºblica"
+freq(enade14$PUBLICA, main = "Alunos de faculdade pÃºblica e privada", col = blues9)
+# Ã‰ possÃ­vel perceber uma maoir quantidade de alunos de faculdade privada.
+
+3.6
+# Mostre a distribuição da renda para os alunos do ENADE 2014. Mostre também a distribuição de renda apenas para os alunos das escolas públicas e das escolas privadas.
+freq(enade14$qe_i2, col = blues9)
+enade14$renda_pub <- enade14$qe_i17 == "a"
+enade14$renda_priv <- enade14$qe_i17 == "b"
+freq(enade14$renda_pub, col = blues9)
+freq(enade14$renda_priv, col = blues9)
+t.test(enade14$renda_pub, enade14$renda_priv)
+# NÃ£o entendi muito bem esse comando
+# mean of x mean of y 
+0.6980676 0.2099149
+
+3.7
+# Mostre agora a nota geral dos alunos das faculdades públicas e dos alunos das faculdades privadas. O que você acha desses dados?
+nota_pub <- enade14$nt_ger[enade14$PUBLICA == 1]
+nota_priv <- enade14$nt_ger[enade14$PUBLICA == 0]
+freq(nota_pub, col = blues9)
+freq(nota_priv, col = blues9)
+# Pode-se observar uma grande diferenÃ§a na nota de alunos de constituiÃ§Ãµes pÃºblicas e privadas. Notas maoires foram obtidas por pessoas de faculdade privada.
+
+# BÔNUS
+3.8
+#  Existe um teste estatístico para verificar se a média da nota geral desta amostra dos alunos que fizeram ENADE pode ser inferida para toda a população? Faça o teste e apresente os resultados. Qual é o intervalo de confiança do teste?
+t.test(enade14$nt_ger)
+# t.test = 95 percent confidence interval
+
+3.9
+# BÔNUS: Existe um teste estatístico para verificar se a diferença entre as notas dos alunos das universidades públicas e dos alunos das universidades privadas é estatisticamente significante? Faça o teste e apresente os resultados.
+t.test(nota_pub, nota_priv)
+# mean of x mean of y 
+ 411.9000  391.9547 
+ 
+ 
+```
+
